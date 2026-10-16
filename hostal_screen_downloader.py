@@ -20,7 +20,7 @@ def check_system_python():
 
 def download_video(url):
     print(f"\n[INFO] Starting download for: {url}")
-    print("[INFO] Target format: H.264 (AVC) + AAC in MP4 container (720p max for LCD compatibility)...\n")
+    print("[INFO] Target format: H.264 (AVC) + AAC in MP4 container (720p max for your Abid house LCD compatibility)...\n")
     
     # yt-dlp command configured for old LCD compatibility
     command = [
@@ -32,7 +32,7 @@ def download_video(url):
     
     try:
         subprocess.run(command, check=True)
-        print("\n[SUCCESS] Video downloaded and formatted successfully for your LCD screen!")
+        print("\n[SUCCESS] Video downloaded and formatted successfully for your Abid house LCD screen!")
     except subprocess.CalledProcessError as e:
         print(f"\n[ERROR] Download failed with error code {e.returncode}")
 
