@@ -55,9 +55,7 @@ def main():
                 
                 # The moment yt-dlp triggers the audio extraction, print our friendly message
                 if "[ExtractAudio]" in line:
-                    print("\n" + "="*50)
-                    print("converting to mp3 ...... please wait calmly! 😊")
-                    print("="*50 + "\n")
+                    print("converting to mp3.................")
                     
             # Wait for the single process to finish before moving to the next link
             process.wait()
