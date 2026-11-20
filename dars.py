@@ -42,22 +42,35 @@ def main():
             
         print(f"\n--- Downloading link {n} into folder '{n}' ---")
         
-        command = ["yt-dlp", "-x", "--audio-format", "mp3", "-P", folder_path, link]
+        # --progress forces the single-line progress bar even when piped
+        command = ["yt-dlp", "--progress", "-x", "--audio-format", "mp3", "-P", folder_path, link]
         
         try:
-            # We use Popen instead of run() so we can read the output line by line as it happens
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+            # Binary mode (no text=True) preserves raw \r characters so lines overwrite in place
+            process = subprocess.Popen(
+                command, 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.STDOUT
+            )
             
-            for line in process.stdout:
-                # Keep showing the normal download progress
-                sys.stdout.write(line)
-                sys.stdout.flush()
-                
-                # The moment yt-dlp triggers the audio extraction, print our friendly message
-                if "[ExtractAudio]" in line:
-                    print("converting to mp3.................")
+            line_buffer = b""
+            while True:
+                byte = process.stdout.read(1)
+                if not byte and process.poll() is not None:
+                    break
+                if byte:
+                    # Write raw bytes directly to stdout buffer so \r overwrites the current line
+                    sys.stdout.buffer.write(byte)
+                    sys.stdout.buffer.flush()
                     
-            # Wait for the single process to finish before moving to the next link
+                    if byte in (b"\n", b"\r"):
+                        if b"[ExtractAudio]" in line_buffer:
+                            sys.stdout.buffer.write(b"\nconverting to mp3.................\n")
+                            sys.stdout.buffer.flush()
+                        line_buffer = b""
+                    else:
+                        line_buffer += byte
+                    
             process.wait()
             
             if process.returncode != 0:
